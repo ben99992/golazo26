@@ -1,0 +1,696 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GOLAZO 26 · Tous les buts du Mondial 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#10151B; --surface:#1A222B; --surface2:#141B22; --line:#2A3542;
+  --ink:#EDF2F7; --muted:#8DA0B3; --amber:#F5A83C; --amber-dim:#9A6A26;
+  --away:#7FD1FF; --live:#FF5A5F; --ok:#43C77C;
+  --radius:14px; --disp:'Oswald',system-ui,sans-serif;
+  --body:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important;animation:none!important}}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.45;
+  background-image:radial-gradient(1200px 400px at 50% -100px,#1B2733 0%,var(--bg) 70%)}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+input,select,textarea{font:inherit;color:var(--ink);background:var(--surface2);border:1px solid var(--line);border-radius:8px;padding:8px 10px;width:100%}
+input:focus-visible,select:focus-visible,button:focus-visible,a:focus-visible{outline:2px solid var(--amber);outline-offset:2px;border-radius:6px}
+a{color:var(--away);text-decoration:none}
+.container{max-width:780px;margin:0 auto;padding:0 14px 90px}
+
+/* ---------- Header ---------- */
+header{position:sticky;top:0;z-index:50;background:rgba(16,21,27,.88);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.hd{max-width:780px;margin:0 auto;padding:10px 14px;display:flex;align-items:center;gap:12px}
+.brand{font-family:var(--disp);font-weight:700;font-size:22px;letter-spacing:.04em;color:var(--amber);white-space:nowrap}
+.brand small{display:block;font-family:var(--body);font-weight:400;font-size:10px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
+.tabs{display:flex;gap:4px;margin-left:auto}
+.tab{font-family:var(--disp);font-weight:600;font-size:14px;letter-spacing:.06em;text-transform:uppercase;
+  padding:7px 12px;border-radius:9px;color:var(--muted)}
+.tab.on{background:var(--amber);color:#171006}
+.gear{padding:7px 9px;border-radius:9px;color:var(--muted);font-size:16px}
+.gear.on{background:#2A3542;color:var(--amber)}
+
+/* ---------- Liste des matchs ---------- */
+.toolbar{display:flex;gap:8px;margin:16px 0 6px;flex-wrap:wrap}
+.toolbar input{flex:1;min-width:180px}
+.chips{display:flex;gap:6px;overflow-x:auto;padding:8px 0 4px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{font-family:var(--disp);font-weight:600;font-size:12px;letter-spacing:.06em;text-transform:uppercase;
+  padding:6px 11px;border:1px solid var(--line);border-radius:999px;color:var(--muted);white-space:nowrap;background:var(--surface2)}
+.chip.on{border-color:var(--amber);color:var(--amber)}
+.day{font-family:var(--disp);font-weight:600;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);
+  margin:20px 2px 8px;display:flex;align-items:center;gap:10px}
+.day::after{content:'';flex:1;height:1px;background:var(--line)}
+.mrow{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;width:100%;text-align:inherit;
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:13px 14px;margin-bottom:8px;
+  transition:border-color .15s, transform .1s}
+.mrow:hover{border-color:#3B4B5C}
+.mrow:active{transform:scale(.995)}
+.team{display:flex;align-items:center;gap:9px;min-width:0;font-family:var(--disp);font-weight:600;font-size:16px;letter-spacing:.02em}
+.team.away{justify-content:flex-end;text-align:right}
+.team .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.flg{font-size:21px;line-height:1;flex:none}
+.sc{font-family:var(--disp);font-weight:700;font-size:21px;letter-spacing:.06em;color:var(--amber);
+  font-variant-numeric:tabular-nums;padding:2px 10px;background:var(--surface2);border-radius:8px;border:1px solid var(--line)}
+.sc.tbd{color:var(--muted);font-size:14px;font-weight:600}
+.msub{grid-column:1/-1;display:flex;gap:8px;align-items:center;font-size:11.5px;color:var(--muted);margin-top:6px;flex-wrap:wrap}
+.stg{font-family:var(--disp);font-weight:600;letter-spacing:.08em;text-transform:uppercase;font-size:10.5px;
+  color:var(--amber);border:1px solid var(--amber-dim);border-radius:5px;padding:1px 6px}
+.gcount{color:var(--away)}
+.empty{color:var(--muted);text-align:center;padding:40px 0}
+
+/* ---------- Page match ---------- */
+.back{display:inline-flex;align-items:center;gap:6px;color:var(--muted);font-size:13px;margin:14px 0 4px;padding:4px 8px 4px 0}
+.scoreboard{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px 16px 16px;text-align:center;margin-top:6px}
+.sb-teams{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px}
+.sb-t{font-family:var(--disp);font-weight:600;font-size:17px;line-height:1.2}
+.sb-t .flg{display:block;font-size:34px;margin-bottom:6px}
+.sb-sc{font-family:var(--disp);font-weight:700;font-size:44px;letter-spacing:.05em;color:var(--amber);font-variant-numeric:tabular-nums}
+.sb-meta{margin-top:12px;font-size:12px;color:var(--muted)}
+
+/* Frise des minutes — signature */
+.strip{position:relative;height:58px;margin:18px 2px 6px}
+.strip .axis{position:absolute;left:0;right:0;top:34px;height:4px;border-radius:2px;
+  background:linear-gradient(90deg,#233040,#2E3E50)}
+.strip .tick{position:absolute;top:26px;width:1px;height:20px;background:var(--line)}
+.strip .tlab{position:absolute;top:47px;font-size:10px;color:var(--muted);transform:translateX(-50%);font-variant-numeric:tabular-nums}
+.pin{position:absolute;top:12px;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px}
+.pin .dot{width:13px;height:13px;border-radius:50%;background:var(--amber);border:2px solid var(--bg);box-shadow:0 0 0 1px var(--amber)}
+.pin.away .dot{background:var(--away);box-shadow:0 0 0 1px var(--away)}
+.pin .pm{font-family:var(--disp);font-size:10px;font-weight:600;color:var(--muted)}
+.pin:hover .dot{transform:scale(1.25)}
+.legend{display:flex;gap:14px;justify-content:center;font-size:11px;color:var(--muted);margin-bottom:14px}
+.legend i{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--amber);margin-right:5px}
+.legend i.a{background:var(--away)}
+
+/* Carte but */
+.goal{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin-bottom:12px;scroll-margin-top:90px}
+.goal.away{border-left:3px solid var(--away)}
+.goal.home{border-left:3px solid var(--amber)}
+.ghead{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.gmin{font-family:var(--disp);font-weight:700;font-size:19px;color:var(--amber);font-variant-numeric:tabular-nums;min-width:42px}
+.goal.away .gmin{color:var(--away)}
+.gplayer{font-family:var(--disp);font-weight:600;font-size:17px}
+.gtype{font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+.gteam{font-size:12px;color:var(--muted);margin-left:auto}
+.gnote{font-size:13px;color:var(--muted);margin-top:4px}
+
+/* Vidéo */
+.vwrap{margin-top:11px}
+.vcap{font-size:12px;color:var(--muted);margin-bottom:6px}
+.vwrap iframe{width:100%;aspect-ratio:16/9;border:1px solid var(--line);border-radius:10px;background:#000;display:block}
+.srcs{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;align-items:center}
+.srcbtn{font-size:11.5px;border:1px solid var(--line);border-radius:999px;padding:4px 10px;color:var(--muted);background:var(--surface2)}
+.srcbtn.on{border-color:var(--amber);color:var(--amber)}
+.novid{margin-top:11px;border:1px dashed var(--line);border-radius:10px;padding:14px;text-align:center;color:var(--muted);font-size:13px}
+.ytlink{display:inline-block;margin-top:8px;font-size:12.5px;border:1px solid var(--line);border-radius:999px;padding:5px 12px;color:var(--away)}
+
+/* Notation */
+.rate{display:flex;align-items:center;gap:2px;margin-top:12px;flex-wrap:wrap}
+.rlab{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-right:8px}
+.rseg{width:24px;height:22px;border:1px solid var(--line);background:var(--surface2);color:var(--muted);
+  font-family:var(--disp);font-size:11px;font-weight:600;font-variant-numeric:tabular-nums}
+.rseg:first-of-type{border-radius:6px 0 0 6px}
+.rseg:last-of-type{border-radius:0 6px 6px 0}
+.rseg.lit{background:var(--amber);border-color:var(--amber);color:#171006}
+.rval{font-family:var(--disp);font-weight:700;color:var(--amber);margin-left:9px;font-size:15px}
+.rclear{font-size:11px;color:var(--muted);margin-left:6px;text-decoration:underline}
+
+/* Top buts */
+.toprow{display:flex;gap:12px;align-items:center;background:var(--surface);border:1px solid var(--line);
+  border-radius:var(--radius);padding:12px 14px;margin-bottom:8px;width:100%;text-align:left}
+.rank{font-family:var(--disp);font-weight:700;font-size:20px;color:var(--muted);min-width:34px;text-align:center;font-variant-numeric:tabular-nums}
+.rank.r1{color:var(--amber)}.rank.r2{color:#C9D4DE}.rank.r3{color:#C98A4B}
+.topmain{min-width:0;flex:1}
+.topmain b{font-family:var(--disp);font-weight:600;font-size:15.5px}
+.topsub{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.topnote{font-family:var(--disp);font-weight:700;font-size:19px;color:var(--amber);font-variant-numeric:tabular-nums;white-space:nowrap}
+.topnote small{font-size:11px;color:var(--muted);font-weight:400}
+
+/* Panneaux / admin */
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin:14px 0}
+.panel h3{font-family:var(--disp);font-weight:600;font-size:14px;letter-spacing:.08em;text-transform:uppercase;color:var(--amber);margin-bottom:10px}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.frow.f3{grid-template-columns:1fr 1fr 1fr}
+.frow.f1{grid-template-columns:1fr}
+.flab{font-size:11px;color:var(--muted);display:block;margin-bottom:3px}
+.btn{font-family:var(--disp);font-weight:600;font-size:13px;letter-spacing:.06em;text-transform:uppercase;
+  background:var(--amber);color:#171006;border-radius:9px;padding:9px 16px}
+.btn.ghost{background:var(--surface2);color:var(--muted);border:1px solid var(--line)}
+.btn.danger{background:none;border:1px solid #7A3038;color:var(--live)}
+.btnrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.editlink{font-size:12px;color:var(--muted);text-decoration:underline;margin-left:auto}
+.hint{font-size:12px;color:var(--muted)}
+details.rights{margin:22px 0;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface2)}
+details.rights summary{cursor:pointer;padding:12px 14px;font-family:var(--disp);font-weight:600;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+details.rights .body{padding:0 14px 14px;font-size:13px;color:var(--muted)}
+details.rights .body p{margin-bottom:8px}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--amber);color:#171006;
+  font-family:var(--disp);font-weight:600;font-size:13px;padding:9px 18px;border-radius:999px;z-index:99;box-shadow:0 6px 24px rgba(0,0,0,.4)}
+@media(max-width:480px){
+  .team{font-size:14px}.flg{font-size:18px}.sc{font-size:17px}
+  .sb-sc{font-size:36px}.sb-t{font-size:14px}.sb-t .flg{font-size:28px}
+  .frow,.frow.f3{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="hd">
+    <div class="brand">GOLAZO 26<small>Tous les buts du Mondial</small></div>
+    <nav class="tabs" aria-label="Navigation">
+      <button class="tab" id="tabM" onclick="location.hash=''">Matchs</button>
+      <button class="tab" id="tabT" onclick="location.hash='#top'">Top buts</button>
+    </nav>
+    <button class="gear" id="gear" title="Mode édition" aria-label="Mode édition" onclick="toggleEdit()">✎</button>
+  </div>
+</header>
+<main class="container" id="app" aria-live="polite"></main>
+
+<script>
+'use strict';
+/* =========================================================
+   GOLAZO 26 — archive vidéo des buts de la Coupe du monde 2026
+   Un seul fichier, zéro dépendance. Vidéos : embeds officiels
+   YouTube uniquement (FIFA / diffuseurs), jamais d'hébergement.
+   ========================================================= */
+
+const STAGES = {GRP:'Groupes', R32:'16es de finale', R16:'8es de finale', QF:'Quarts', SF:'Demi-finales', TP:'Petite finale', F:'Finale'};
+const STAGE_ORDER = ['F','TP','SF','QF','R16','R32','GRP'];
+const GTYPES = {'':'', pen:'Pénalty', fk:'Coup franc', og:'C.S.C.', head:'Tête', vol:'Volée'};
+
+/* ---------- Données d'amorçage (matchs réels, mis à jour au 2 juillet 2026).
+   Les buts connus sont renseignés ; complétez le reste via le mode édition (✎). ---------- */
+const SEED = {
+matches:[
+ // ----- 16es de finale (joués) -----
+ {id:'m84',n:84,stage:'R32',date:'2026-07-02',city:'Los Angeles',stadium:'SoFi Stadium',
+  home:{code:'ESP',name:'Espagne',flag:'🇪🇸'},away:{code:'AUT',name:'Autriche',flag:'🇦🇹'},sh:3,sa:0,status:'fini',videos:[],goals:[
+   {id:'g84a',team:'H',player:'Mikel Oyarzabal',minute:'36',type:'',note:'Servi par Cucurella',sources:[]},
+   {id:'g84b',team:'H',player:'Pedro Porro',minute:'66',type:'head',note:'Tête croisée sur un centre de Baena',sources:[]},
+   {id:'g84c',team:'H',player:'Mikel Oyarzabal',minute:'89',type:'',note:'Doublé, encore sur un centre de Cucurella',sources:[]}]},
+ {id:'m81',n:81,stage:'R32',date:'2026-07-01',city:'Santa Clara',stadium:"Levi's Stadium",
+  home:{code:'USA',name:'États-Unis',flag:'🇺🇸'},away:{code:'BIH',name:'Bosnie-Herzégovine',flag:'🇧🇦'},sh:2,sa:0,status:'fini',
+  videos:[{id:'O2avRNCmNDM',start:0,label:'Tous les buts'}],goals:[
+   {id:'g81a',team:'H',player:'Folarin Balogun',minute:'45',type:'',note:'Frappe croisée du gauche à 15 m, juste avant la pause',sources:[]},
+   {id:'g81b',team:'H',player:'Malik Tillman',minute:'82',type:'fk',note:'Coup franc direct somptueux, à 10 contre 11',sources:[]}]},
+ {id:'m82',n:82,stage:'R32',date:'2026-07-01',city:'Seattle',stadium:'Lumen Field',info:'après prolongation',
+  home:{code:'BEL',name:'Belgique',flag:'🇧🇪'},away:{code:'SEN',name:'Sénégal',flag:'🇸🇳'},sh:3,sa:2,status:'fini',
+  videos:[{id:'GDkK-YcuaEU',start:0,label:'Résumé du match'},{id:'ihlCdDXR4Uw',start:0,label:'Résumé (alt.)'}],goals:[
+   {id:'g82a',team:'A',player:'Habib Diarra',minute:'25',type:'',note:'Après un poteau d\'Ismaïla Sarr',sources:[]},
+   {id:'g82b',team:'A',player:'Ismaïla Sarr',minute:'51',type:'',note:'Face-à-face gagné devant Courtois, son 4e but du tournoi',sources:[]},
+   {id:'g82c',team:'H',player:'Romelu Lukaku',minute:'86',type:'',note:'Le début de la remontada belge',sources:[]},
+   {id:'g82d',team:'H',player:'Youri Tielemans',minute:'89',type:'',note:'Égalisation trois minutes plus tard',sources:[]},
+   {id:'g82e',team:'H',player:'Youri Tielemans',minute:'120+5',type:'pen',note:'Penalty vainqueur au bout de la prolongation',sources:[]}]},
+ {id:'m80',n:80,stage:'R32',date:'2026-07-01',city:'Atlanta',stadium:'Mercedes-Benz Stadium',
+  home:{code:'ENG',name:'Angleterre',flag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿'},away:{code:'COD',name:'RD Congo',flag:'🇨🇩'},sh:2,sa:1,status:'fini',
+  videos:[{id:'IOKZzg9B20Y',start:0,label:'Résumé du match'}],goals:[
+   {id:'g80c',team:'A',player:'Brian Cipenga',minute:'7',type:'',note:'Frappe précise au second poteau, la sensation du match',sources:[]},
+   {id:'g80a',team:'H',player:'Harry Kane',minute:'75',type:'head',note:'Tête sur un centre de Gordon',sources:[]},
+   {id:'g80b',team:'H',player:'Harry Kane',minute:'86',type:'',note:'Coup de canon décisif, encore servi par Gordon',sources:[]}]},
+ {id:'m79',n:79,stage:'R32',date:'2026-07-01',city:'Mexico',stadium:'Estadio Azteca',
+  home:{code:'MEX',name:'Mexique',flag:'🇲🇽'},away:{code:'ECU',name:'Équateur',flag:'🇪🇨'},sh:2,sa:0,status:'fini',
+  videos:[{id:'LDt9my6LzTs',start:0,label:'Résumé et buts'},{id:'Tgl7hUUH6vE',start:0,label:'France 24'}],goals:[
+   {id:'g79a',team:'H',player:'Julián Quiñones',minute:'22',type:'',note:'',sources:[]},
+   {id:'g79b',team:'H',player:'Raúl Jiménez',minute:'31',type:'',note:'',sources:[]}]},
+ {id:'m77',n:77,stage:'R32',date:'2026-06-30',city:'New York',stadium:'MetLife Stadium',
+  home:{code:'FRA',name:'France',flag:'🇫🇷'},away:{code:'SWE',name:'Suède',flag:'🇸🇪'},sh:3,sa:0,status:'fini',
+  videos:[{id:'peV9lmjWml0',start:0,label:'Résumé du match'},{id:'xxClCCyGGW0',start:0,label:'Tous les buts (alt.)'}],goals:[
+   {id:'g77a',team:'H',player:'Kylian Mbappé',minute:'45',type:'',note:'',sources:[]},
+   {id:'g77c',team:'H',player:'Bradley Barcola',minute:'53',type:'',note:'',sources:[]},
+   {id:'g77b',team:'H',player:'Kylian Mbappé',minute:'74',type:'',note:'Son doublé, 6e but du tournoi',sources:[]}]},
+ // ----- Phase de groupes (matchs marquants renseignés) -----
+ {id:'mA1',n:null,stage:'GRP',group:'J',date:'2026-06-16',city:'Kansas City',stadium:'',
+  home:{code:'ARG',name:'Argentine',flag:'🇦🇷'},away:{code:'ALG',name:'Algérie',flag:'🇩🇿'},sh:3,sa:0,status:'fini',
+  videos:[{id:'VlSc5FS5nGw',start:0,label:'Résumé du match'},{id:'GW6BR00nsHQ',start:0,label:'France 24'}],goals:[
+   {id:'gA1a',team:'H',player:'Lionel Messi',minute:'17',type:'',note:'Frappe enroulée après une passe de De Paul',sources:[]},
+   {id:'gA1b',team:'H',player:'Lionel Messi',minute:'60',type:'',note:'A suivi une frappe de Mac Allister repoussée par le gardien',sources:[]},
+   {id:'gA1c',team:'H',player:'Lionel Messi',minute:'76',type:'',note:'Du gauche, servi par Nico González — égale le record de Klose (16 buts en Coupe du monde)',sources:[]}]},
+ {id:'mA2',n:null,stage:'GRP',group:'J',date:'',city:'',stadium:'',
+  home:{code:'ARG',name:'Argentine',flag:'🇦🇷'},away:{code:'AUT',name:'Autriche',flag:'🇦🇹'},sh:2,sa:0,status:'fini',videos:[],goals:[
+   {id:'gA2a',team:'H',player:'Lionel Messi',minute:'',type:'',note:'',sources:[]},
+   {id:'gA2b',team:'H',player:'Lionel Messi',minute:'',type:'',note:'',sources:[]}]},
+ {id:'mA3',n:null,stage:'GRP',group:'J',date:'',city:'',stadium:'',
+  home:{code:'ARG',name:'Argentine',flag:'🇦🇷'},away:{code:'JOR',name:'Jordanie',flag:'🇯🇴'},sh:3,sa:1,status:'fini',videos:[],goals:[
+   {id:'gA3a',team:'H',player:'Lionel Messi',minute:'',type:'fk',note:'Superbe coup franc direct',sources:[]}]},
+ {id:'mF1',n:null,stage:'GRP',group:'',date:'2026-06-16',city:'',stadium:'',
+  home:{code:'FRA',name:'France',flag:'🇫🇷'},away:{code:'SEN',name:'Sénégal',flag:'🇸🇳'},sh:null,sa:null,status:'fini',videos:[],goals:[
+   {id:'gF1a',team:'H',player:'Kylian Mbappé',minute:'',type:'',note:'',sources:[]},
+   {id:'gF1b',team:'H',player:'Kylian Mbappé',minute:'',type:'',note:'',sources:[]}]},
+ {id:'mF2',n:null,stage:'GRP',group:'',date:'',city:'',stadium:'',
+  home:{code:'FRA',name:'France',flag:'🇫🇷'},away:{code:'IRQ',name:'Irak',flag:'🇮🇶'},sh:3,sa:0,status:'fini',videos:[],goals:[
+   {id:'gF2a',team:'H',player:'Kylian Mbappé',minute:'',type:'',note:'',sources:[]},
+   {id:'gF2b',team:'H',player:'Kylian Mbappé',minute:'',type:'',note:'',sources:[]}]}
+]};
+
+/* ---------- Persistance ---------- */
+const K_DATA='golazo26_data_v3', K_RATE='golazo26_ratings_v1', K_EDIT='golazo26_edit';
+let DB = load(K_DATA) || structuredClone(SEED);
+let RATES = load(K_RATE) || {};
+let editMode = localStorage.getItem(K_EDIT)==='1';
+function load(k){ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):null }catch(e){ return null } }
+function saveDB(){ localStorage.setItem(K_DATA, JSON.stringify(DB)) }
+function saveRates(){ localStorage.setItem(K_RATE, JSON.stringify(RATES)) }
+
+/* ---------- Utilitaires ---------- */
+const $ = s=>document.querySelector(s);
+const esc = s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid = p=>p+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const DAYS=['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'];
+const MONTHS=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+function fmtDate(iso){ if(!iso) return ''; const d=new Date(iso+'T12:00:00');
+  return DAYS[d.getDay()]+' '+d.getDate()+' '+MONTHS[d.getMonth()]; }
+function parseMin(m){ const x=parseInt(m,10); return isNaN(x)?null:Math.min(x, 125); }
+function matchById(id){ return DB.matches.find(m=>m.id===id) }
+function goalTeam(m,g){ return g.team==='H'?m.home:m.away }
+function toast(msg){ const t=document.createElement('div'); t.className='toast'; t.textContent=msg;
+  document.body.appendChild(t); setTimeout(()=>t.remove(),2200); }
+
+/* Extraction d'ID YouTube depuis n'importe quel format d'URL (+ timestamp t=/start=) */
+function parseYT(url){
+  if(!url) return null;
+  url=url.trim();
+  let id=null, start=0;
+  const m1=url.match(/(?:youtube(?:-nocookie)?\.com\/(?:watch\?.*?v=|embed\/|shorts\/|live\/)|youtu\.be\/)([A-Za-z0-9_-]{6,20})/);
+  if(m1) id=m1[1];
+  else if(/^[A-Za-z0-9_-]{11}$/.test(url)) id=url;
+  if(!id) return null;
+  const t=url.match(/[?&#](?:t|start)=([0-9hms]+)/);
+  if(t){ const v=t[1];
+    if(/^\d+$/.test(v)) start=+v;
+    else { const h=v.match(/(\d+)h/), mn=v.match(/(\d+)m/), s=v.match(/(\d+)s/);
+      start=(h?+h[1]*3600:0)+(mn?+mn[1]*60:0)+(s?+s[1]:0); } }
+  return {id, start};
+}
+function ytSearchURL(m,g){
+  const q=`but ${g.player} ${m.home.name} ${m.away.name} coupe du monde 2026`;
+  return 'https://www.youtube.com/results?search_query='+encodeURIComponent(q);
+}
+
+/* ---------- Routage ---------- */
+window.addEventListener('hashchange', render);
+function route(){
+  const h=location.hash;
+  if(h.startsWith('#m/')) return {v:'match', id:h.slice(3)};
+  if(h==='#top') return {v:'top'};
+  return {v:'list'};
+}
+function toggleEdit(){ editMode=!editMode; localStorage.setItem(K_EDIT, editMode?'1':'0'); render(); }
+
+/* État de filtre (persiste pendant la session) */
+let filter={q:'', stage:'ALL'};
+
+/* =========================================================
+   VUE : LISTE DES MATCHS
+   ========================================================= */
+function renderList(){
+  const stages=['ALL',...STAGE_ORDER.filter(s=>DB.matches.some(m=>m.stage===s))];
+  const q=filter.q.toLowerCase();
+  let ms=DB.matches.filter(m=>
+    (filter.stage==='ALL'||m.stage===filter.stage) &&
+    (!q || (m.home.name+' '+m.away.name+' '+m.home.code+' '+m.away.code).toLowerCase().includes(q)));
+  // tri : phase (finale d'abord) puis date décroissante
+  ms=[...ms].sort((a,b)=> STAGE_ORDER.indexOf(a.stage)-STAGE_ORDER.indexOf(b.stage) || (b.date||'').localeCompare(a.date||''));
+
+  let html=`
+  <div class="toolbar">
+    <input id="search" type="search" placeholder="Rechercher une équipe…" value="${esc(filter.q)}" aria-label="Rechercher une équipe">
+  </div>
+  <div class="chips" role="tablist">
+    ${stages.map(s=>`<button class="chip ${filter.stage===s?'on':''}" onclick="setStage('${s}')">${s==='ALL'?'Tout':STAGES[s]}</button>`).join('')}
+  </div>`;
+
+  if(editMode) html+=addMatchForm();
+
+  if(!ms.length) html+=`<p class="empty">Aucun match ne correspond.</p>`;
+
+  let lastKey='';
+  for(const m of ms){
+    const key=STAGES[m.stage]+(m.date?' · '+fmtDate(m.date):'');
+    if(key!==lastKey){ html+=`<div class="day">${esc(key)}</div>`; lastKey=key; }
+    const played=m.status!=='avenir';
+    const done=played && m.sh!=null;
+    const nbG=m.goals.length, tot=done?(m.sh+m.sa):0;
+    const nbV=m.goals.filter(g=>(g.sources||[]).length).length + ((m.videos||[]).length?nbG-m.goals.filter(g=>(g.sources||[]).length).length:0);
+    html+=`
+    <button class="mrow" onclick="location.hash='#m/${m.id}'" aria-label="${esc(m.home.name)} contre ${esc(m.away.name)}">
+      <span class="team"><span class="flg">${m.home.flag}</span><span class="nm">${esc(m.home.name)}</span></span>
+      <span class="sc ${done?'':'tbd'}">${done?`${m.sh} – ${m.sa}`:(played?'terminé':'à venir')}</span>
+      <span class="team away"><span class="nm">${esc(m.away.name)}</span><span class="flg">${m.away.flag}</span></span>
+      <span class="msub">
+        <span class="stg">${STAGES[m.stage]}</span>
+        ${m.city?`<span>${esc(m.city)}${m.stadium?' · '+esc(m.stadium):''}</span>`:''}
+        ${done&&tot>0?`<span class="gcount">▶ ${Math.min(nbV,tot)}/${tot} but${tot>1?'s':''} en vidéo</span>`:''}
+      </span>
+    </button>`;
+  }
+  html+=rightsPanel();
+  $('#app').innerHTML=html;
+  const si=$('#search');
+  si.addEventListener('input',e=>{ filter.q=e.target.value; renderList(); 
+    const s2=$('#search'); s2.focus(); s2.setSelectionRange(s2.value.length,s2.value.length); });
+}
+function setStage(s){ filter.stage=s; renderList(); }
+
+/* =========================================================
+   VUE : PAGE MATCH
+   ========================================================= */
+function renderMatch(id){
+  const m=matchById(id);
+  if(!m){ location.hash=''; return; }
+  const done=m.status!=='avenir' && m.sh!=null;
+  const tot=done?(m.sh+m.sa):0;
+  const missing=Math.max(0, tot-m.goals.length);
+
+  let html=`<a class="back" href="#" onclick="event.preventDefault();history.length>1?history.back():location.hash=''">← Tous les matchs</a>
+  <div class="scoreboard">
+    <div class="sb-teams">
+      <div class="sb-t"><span class="flg">${m.home.flag}</span>${esc(m.home.name)}</div>
+      <div class="sb-sc">${done?`${m.sh}–${m.sa}`:'–'}</div>
+      <div class="sb-t"><span class="flg">${m.away.flag}</span>${esc(m.away.name)}</div>
+    </div>
+    <div class="sb-meta">${STAGES[m.stage]}${m.n?' · Match n°'+m.n:''}${m.info?' · '+esc(m.info):''}${m.date?' · '+fmtDate(m.date):''}${m.city?' · '+esc(m.city):''}${m.stadium?' ('+esc(m.stadium)+')':''}</div>
+  </div>`;
+
+  // Résumé complet embarqué (vidéo de match)
+  const vids=m.videos||[];
+  if(vids.length){
+    const cur=Math.min(state_srcIdx['M'+m.id]||0, vids.length-1), v=vids[cur];
+    html+=`<div class="vwrap" id="vw-M${m.id}" style="margin-top:12px">
+      <p class="vcap">▶ Résumé complet du match</p>
+      ${ytIframe(v.id, v.start)}
+      <div class="srcs">
+        ${vids.map((x,i)=>`<button class="srcbtn ${i===cur?'on':''}" onclick="setSrc('M${m.id}',${i})">${esc(x.label||'Source '+(i+1))}</button>`).join('')}
+        <a class="srcbtn" href="${ytWatch(v.id,v.start)}" target="_blank" rel="noopener">Ouvrir sur YouTube ↗</a>
+      </div>
+    </div>`;
+  }
+
+  // Frise des minutes (signature) — épingles pour les buts dont la minute est connue
+  const pinned=m.goals.filter(g=>parseMin(g.minute)!=null);
+  if(pinned.length){
+    const MAXM=95;
+    html+=`<div class="strip" aria-hidden="true"><div class="axis"></div>
+      ${[0,45,90].map(t=>`<div class="tick" style="left:${t/MAXM*100}%"></div><div class="tlab" style="left:${t/MAXM*100}%">${t}′</div>`).join('')}
+      ${pinned.map(g=>{const mn=Math.min(parseMin(g.minute),MAXM);
+        return `<button class="pin ${g.team==='H'?'home':'away'}" style="left:${mn/MAXM*100}%" title="${esc(g.player)} ${esc(g.minute)}′"
+          onclick="document.getElementById('goal-${g.id}')?.scrollIntoView({behavior:'smooth'})">
+          <span class="dot"></span><span class="pm">${esc(g.minute)}′</span></button>`}).join('')}
+    </div>
+    <div class="legend"><span><i></i>${esc(m.home.name)}</span><span><i class="a"></i>${esc(m.away.name)}</span></div>`;
+  }
+
+  if(!m.goals.length && !done) html+=`<p class="empty">Match à venir — les buts apparaîtront ici.</p>`;
+  if(!m.goals.length && done && tot===0) html+=`<p class="empty">0–0 : rien à voir ici… littéralement.</p>`;
+  if(!m.goals.length && done && tot>0) html+=`<p class="empty">${tot} but${tot>1?'s':''} à référencer.<br><span class="hint">Activez le mode édition (✎) pour les ajouter.</span></p>`;
+
+  // tri des buts : minute connue d'abord (ordre chrono), puis les autres
+  const sorted=[...m.goals].sort((a,b)=>{
+    const ma=parseMin(a.minute), mb=parseMin(b.minute);
+    if(ma==null&&mb==null) return 0; if(ma==null) return 1; if(mb==null) return -1; return ma-mb;
+  });
+  for(const g of sorted) html+=goalCard(m,g);
+
+  if(m.goals.length && missing>0)
+    html+=`<p class="hint" style="text-align:center;margin:6px 0 14px">${missing} but${missing>1?'s':''} de ce match reste${missing>1?'nt':''} à ajouter (✎).</p>`;
+
+  if(editMode) html+=addGoalForm(m)+matchTools(m);
+  html+=rightsPanel();
+  $('#app').innerHTML=html;
+}
+
+function goalCard(m,g){
+  const t=goalTeam(m,g);
+  const my=RATES[g.id];
+  const own=g.sources||[];
+  const inherited=!own.length ? (m.videos||[]).map(v=>({id:v.id,start:v.start||0,label:(v.label||'Résumé du match'),inh:true})) : [];
+  const src=own.length?own:inherited;
+  const cur=Math.min(state_srcIdx[g.id]||0, Math.max(0,src.length-1));
+  const s=src[cur];
+
+  let video;
+  if(s){
+    const cap = own.length ? '' : `<p class="vcap">📼 Résumé officiel du match — ce but y figure. En mode édition (✎), collez un lien horodaté pour pointer directement le but.</p>`;
+    video=`<div class="vwrap" id="vw-${g.id}">
+      ${cap}
+      ${ytIframe(s.id, s.start)}
+      <div class="srcs">
+        ${src.map((x,i)=>`<button class="srcbtn ${i===cur?'on':''}" onclick="setSrc('${g.id}',${i})">${esc(x.label||'Source '+(i+1))}</button>`).join('')}
+        <a class="srcbtn" href="${ytWatch(s.id,s.start)}" target="_blank" rel="noopener">Ouvrir sur YouTube ↗</a>
+      </div>
+    </div>`;
+  } else {
+    video=`<div class="novid">Pas encore de vidéo référencée pour ce but.
+      <br><a class="ytlink" href="${ytSearchURL(m,g)}" target="_blank" rel="noopener">↗ Chercher sur YouTube</a>
+      ${editMode?'':'<div class="hint" style="margin-top:6px">Mode édition (✎) pour ajouter un lien officiel.</div>'}</div>`;
+  }
+
+  const segs=Array.from({length:10},(_,i)=>`<button class="rseg ${my>=i+1?'lit':''}" onclick="rate('${g.id}',${i+1})" aria-label="Noter ${i+1} sur 10">${i+1}</button>`).join('');
+
+  return `<article class="goal ${g.team==='H'?'home':'away'}" id="goal-${g.id}">
+    <div class="ghead">
+      <span class="gmin">${g.minute?esc(g.minute)+'′':'—'}</span>
+      <span class="gplayer">${esc(g.player)}</span>
+      ${g.type?`<span class="gtype">${GTYPES[g.type]||esc(g.type)}</span>`:''}
+      <span class="gteam">${t.flag} ${esc(t.name)}</span>
+      ${editMode?`<button class="editlink" onclick="editGoal('${m.id}','${g.id}')">modifier</button>`:''}
+    </div>
+    ${g.note?`<p class="gnote">${esc(g.note)}</p>`:''}
+    ${video}
+    <div class="rate">
+      <span class="rlab">Ma note</span>${segs}
+      ${my?`<span class="rval">${my}/10</span><button class="rclear" onclick="rate('${g.id}',0)">effacer</button>`:''}
+    </div>
+  </article>`;
+}
+
+const state_srcIdx={};
+function setSrc(gid,i){ state_srcIdx[gid]=i; render(); }
+function ytIframe(vid,start){
+  return `<iframe loading="lazy" src="https://www.youtube.com/embed/${esc(vid)}?start=${start||0}&rel=0&playsinline=1&hl=fr"
+    title="Vidéo YouTube" allow="accelerometer; autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>`;
+}
+function ytWatch(vid,start){
+  return `https://www.youtube.com/watch?v=${encodeURIComponent(vid)}${start?'&t='+start+'s':''}`;
+}
+function rate(gid,n){
+  if(n===0) delete RATES[gid]; else RATES[gid]=n;
+  saveRates(); render();
+}
+
+/* =========================================================
+   VUE : TOP BUTS
+   ========================================================= */
+function renderTop(){
+  const rows=[];
+  for(const m of DB.matches) for(const g of m.goals)
+    rows.push({m,g,note:RATES[g.id]||0,hasV:(g.sources||[]).length>0});
+  rows.sort((a,b)=> b.note-a.note || (b.hasV-a.hasV) || (b.m.date||'').localeCompare(a.m.date||''));
+  const rated=rows.filter(r=>r.note>0), rest=rows.filter(r=>!r.note);
+
+  let html=`<div class="day" style="margin-top:18px">Classement de mes plus beaux buts</div>`;
+  if(!rated.length) html+=`<p class="empty">Aucun but noté pour l'instant.<br><span class="hint">Ouvrez un match, regardez, notez sur 10 — le classement se construit ici.</span></p>`;
+  rated.forEach((r,i)=>{ html+=topRow(r,i+1); });
+  if(rest.length){
+    html+=`<div class="day">À noter (${rest.length})</div>`;
+    rest.slice(0,30).forEach(r=>{ html+=topRow(r,null); });
+  }
+  html+=`<p class="hint" style="text-align:center;margin-top:10px">Les notes sont enregistrées sur cet appareil. Exportez/partagez vos données via le mode édition.</p>`;
+  $('#app').innerHTML=html;
+}
+function topRow(r,rank){
+  const t=goalTeam(r.m,r.g);
+  return `<button class="toprow" onclick="location.hash='#m/${r.m.id}';setTimeout(()=>document.getElementById('goal-${r.g.id}')?.scrollIntoView(),60)">
+    <span class="rank ${rank===1?'r1':rank===2?'r2':rank===3?'r3':''}">${rank??'·'}</span>
+    <span class="topmain">
+      <b>${esc(r.g.player)}</b> ${r.g.minute?`<span class="hint">${esc(r.g.minute)}′</span>`:''}
+      <div class="topsub">${t.flag} ${esc(t.name)} · ${esc(r.m.home.name)} ${r.m.sh??''}–${r.m.sa??''} ${esc(r.m.away.name)} · ${STAGES[r.m.stage]}</div>
+    </span>
+    <span class="topnote">${r.note?r.note+'<small>/10</small>':(r.hasV?'▶':'—')}</span>
+  </button>`;
+}
+
+/* =========================================================
+   MODE ÉDITION — formulaires
+   ========================================================= */
+function addGoalForm(m){
+  return `<div class="panel" id="goalform">
+    <h3>Ajouter un but</h3>
+    <div class="frow f3">
+      <div><span class="flab">Équipe</span>
+        <select id="ng-team"><option value="H">${esc(m.home.name)}</option><option value="A">${esc(m.away.name)}</option></select></div>
+      <div><span class="flab">Buteur</span><input id="ng-player" placeholder="Nom du joueur"></div>
+      <div><span class="flab">Minute (ex. 67 ou 90+3)</span><input id="ng-min" inputmode="numeric" placeholder="—"></div>
+    </div>
+    <div class="frow">
+      <div><span class="flab">Type</span>
+        <select id="ng-type"><option value="">—</option><option value="pen">Pénalty</option><option value="fk">Coup franc</option>
+        <option value="head">Tête</option><option value="vol">Volée</option><option value="og">C.S.C.</option></select></div>
+      <div><span class="flab">Note courte (optionnel)</span><input id="ng-note" placeholder="frappe de 25 m, lucarne…"></div>
+    </div>
+    <div class="frow">
+      <div><span class="flab">Lien vidéo YouTube (officiel, avec &t= si possible)</span><input id="ng-url" placeholder="https://youtu.be/…?t=1m32s"></div>
+      <div><span class="flab">Nom de la source</span><input id="ng-lab" placeholder="FIFA / beIN / M6…" value="FIFA"></div>
+    </div>
+    <div class="btnrow"><button class="btn" onclick="submitGoal('${m.id}')">Ajouter le but</button></div>
+    <p class="hint" style="margin-top:8px">Astuce : sur YouTube, clic droit sur la vidéo → « Copier l'URL à cet instant » pour pointer directement le but dans un résumé officiel.</p>
+  </div>`;
+}
+function submitGoal(mid){
+  const m=matchById(mid); if(!m) return;
+  const player=$('#ng-player').value.trim();
+  if(!player){ toast('Indiquez le buteur'); return; }
+  const g={id:uid('g'),team:$('#ng-team').value,player,minute:$('#ng-min').value.trim(),
+    type:$('#ng-type').value,note:$('#ng-note').value.trim(),sources:[]};
+  const yt=parseYT($('#ng-url').value);
+  if(yt) g.sources.push({...yt,label:$('#ng-lab').value.trim()||'Source'});
+  m.goals.push(g); saveDB(); toast('But ajouté'); render();
+}
+function editGoal(mid,gid){
+  const m=matchById(mid); const g=m?.goals.find(x=>x.id===gid); if(!g) return;
+  const player=prompt('Buteur :',g.player); if(player===null) return; g.player=player.trim()||g.player;
+  const minute=prompt('Minute (ex. 67, 90+3, vide si inconnue) :',g.minute??''); if(minute!==null) g.minute=minute.trim();
+  const url=prompt('Ajouter/remplacer un lien vidéo YouTube (vide = ne rien changer, "x" = tout retirer) :','');
+  if(url==='x') g.sources=[];
+  else if(url){ const yt=parseYT(url);
+    if(yt){ const label=prompt('Nom de la source :','FIFA')||'Source'; g.sources.unshift({...yt,label}); }
+    else toast('URL YouTube non reconnue'); }
+  if(confirm('Conserver ce but ? (Annuler = le supprimer)')){ saveDB(); render(); }
+  else { m.goals=m.goals.filter(x=>x.id!==gid); saveDB(); render(); toast('But supprimé'); }
+}
+function matchTools(m){
+  return `<div class="panel"><h3>Match — outils</h3>
+    <div class="frow f3">
+      <div><span class="flab">Score ${esc(m.home.code)}</span><input id="mt-sh" inputmode="numeric" value="${m.sh??''}"></div>
+      <div><span class="flab">Score ${esc(m.away.code)}</span><input id="mt-sa" inputmode="numeric" value="${m.sa??''}"></div>
+      <div><span class="flab">Statut</span><select id="mt-st">
+        <option value="fini" ${m.status==='fini'?'selected':''}>Terminé</option>
+        <option value="avenir" ${m.status==='avenir'?'selected':''}>À venir</option></select></div>
+    </div>
+    <div class="frow">
+      <div><span class="flab">Ville</span><input id="mt-city" value="${esc(m.city||'')}"></div>
+      <div><span class="flab">Stade</span><input id="mt-std" value="${esc(m.stadium||'')}"></div>
+    </div>
+    <div class="frow">
+      <div><span class="flab">Vidéo résumé du match (URL YouTube — sert aussi de vidéo par défaut à chaque but)</span><input id="mt-vid" placeholder="https://youtu.be/…"></div>
+      <div><span class="flab">Nom de la source</span><input id="mt-vlab" placeholder="Résumé du match" value="Résumé du match"></div>
+    </div>
+    ${(m.videos||[]).length?`<p class="hint" style="margin-bottom:8px">${m.videos.length} vidéo(s) de résumé référencée(s). Tapez « x » dans le champ URL pour toutes les retirer.</p>`:''}
+    <div class="btnrow">
+      <button class="btn" onclick="saveMatchTools('${m.id}')">Enregistrer</button>
+      <button class="btn danger" onclick="delMatch('${m.id}')">Supprimer le match</button>
+    </div></div>`;
+}
+function saveMatchTools(mid){
+  const m=matchById(mid); if(!m) return;
+  const sh=$('#mt-sh').value.trim(), sa=$('#mt-sa').value.trim();
+  m.sh=sh===''?null:+sh; m.sa=sa===''?null:+sa;
+  m.status=$('#mt-st').value; m.city=$('#mt-city').value.trim(); m.stadium=$('#mt-std').value.trim();
+  const vurl=$('#mt-vid').value.trim();
+  if(vurl==='x') m.videos=[];
+  else if(vurl){ const yt=parseYT(vurl);
+    if(yt){ m.videos=m.videos||[]; m.videos.unshift({...yt,label:$('#mt-vlab').value.trim()||'Résumé du match'}); }
+    else { toast('URL YouTube non reconnue'); return; } }
+  saveDB(); toast('Match mis à jour'); render();
+}
+function delMatch(mid){
+  if(!confirm('Supprimer ce match et ses buts ?')) return;
+  DB.matches=DB.matches.filter(m=>m.id!==mid); saveDB(); location.hash=''; toast('Match supprimé');
+}
+function addMatchForm(){
+  return `<div class="panel"><h3>Ajouter un match</h3>
+    <div class="frow">
+      <div><span class="flab">Équipe 1 (domicile)</span><input id="nm-h" placeholder="France"></div>
+      <div><span class="flab">Drapeau 1 (emoji)</span><input id="nm-hf" placeholder="🇫🇷"></div>
+    </div>
+    <div class="frow">
+      <div><span class="flab">Équipe 2 (extérieur)</span><input id="nm-a" placeholder="Brésil"></div>
+      <div><span class="flab">Drapeau 2 (emoji)</span><input id="nm-af" placeholder="🇧🇷"></div>
+    </div>
+    <div class="frow f3">
+      <div><span class="flab">Phase</span><select id="nm-stg">
+        ${STAGE_ORDER.map(s=>`<option value="${s}" ${s==='R16'?'selected':''}>${STAGES[s]}</option>`).join('')}</select></div>
+      <div><span class="flab">Date</span><input id="nm-date" type="date" value="2026-07-03"></div>
+      <div><span class="flab">Score (ex. 2-1, vide si à venir)</span><input id="nm-sc" placeholder="2-1"></div>
+    </div>
+    <div class="frow">
+      <div><span class="flab">Ville</span><input id="nm-city" placeholder="Dallas"></div>
+      <div><span class="flab">Stade</span><input id="nm-std" placeholder="AT&T Stadium"></div>
+    </div>
+    <div class="btnrow">
+      <button class="btn" onclick="submitMatch()">Créer le match</button>
+      <button class="btn ghost" onclick="exportJSON()">⬇ Exporter les données</button>
+      <button class="btn ghost" onclick="document.getElementById('impfile').click()">⬆ Importer</button>
+      <input type="file" id="impfile" accept=".json" style="display:none" onchange="importJSON(this)">
+      <button class="btn danger" onclick="resetAll()">Réinitialiser</button>
+    </div>
+    <p class="hint" style="margin-top:8px">L'export JSON contient matchs, buts, liens vidéo et vos notes — pratique pour sauvegarder ou partager avec les copains.</p>
+  </div>`;
+}
+function submitMatch(){
+  const h=$('#nm-h').value.trim(), a=$('#nm-a').value.trim();
+  if(!h||!a){ toast('Indiquez les deux équipes'); return; }
+  let sh=null,sa=null,status='avenir';
+  const sc=$('#nm-sc').value.trim().match(/^(\d+)\s*[-–]\s*(\d+)$/);
+  if(sc){ sh=+sc[1]; sa=+sc[2]; status='fini'; }
+  DB.matches.push({id:uid('m'),n:null,stage:$('#nm-stg').value,date:$('#nm-date').value,
+    city:$('#nm-city').value.trim(),stadium:$('#nm-std').value.trim(),
+    home:{code:h.slice(0,3).toUpperCase(),name:h,flag:$('#nm-hf').value.trim()||'🏳️'},
+    away:{code:a.slice(0,3).toUpperCase(),name:a,flag:$('#nm-af').value.trim()||'🏳️'},
+    sh,sa,status,goals:[]});
+  saveDB(); toast('Match créé'); render();
+}
+function exportJSON(){
+  const blob=new Blob([JSON.stringify({data:DB,ratings:RATES},null,1)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download='golazo26-export.json'; a.click(); URL.revokeObjectURL(a.href);
+}
+function importJSON(inp){
+  const f=inp.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=()=>{ try{
+      const j=JSON.parse(r.result);
+      if(j.data?.matches) DB=j.data; else if(j.matches) DB=j;
+      if(j.ratings) RATES={...RATES,...j.ratings};
+      saveDB(); saveRates(); toast('Données importées'); render();
+    }catch(e){ toast('Fichier invalide'); } };
+  r.readAsText(f);
+}
+function resetAll(){
+  if(!confirm('Revenir aux données d\'origine ? (vos ajouts et notes locales seront effacés)')) return;
+  localStorage.removeItem(K_DATA); localStorage.removeItem(K_RATE);
+  DB=structuredClone(SEED); RATES={}; render(); toast('Réinitialisé');
+}
+
+/* ---------- Panneau droits & disponibilité ---------- */
+function rightsPanel(){
+  return `<details class="rights"><summary>Droits & disponibilité des vidéos</summary><div class="body">
+    <p>GOLAZO 26 n'héberge aucune vidéo : chaque but est lu via le lecteur intégré YouTube (mode « nocookie »), depuis des chaînes officielles (FIFA, diffuseurs). Les droits restent gérés par YouTube, y compris le géoblocage éventuel décidé par les ayants droit.</p>
+    <p>Pour une disponibilité maximale dans tous les pays : plusieurs sources peuvent être référencées par but (FIFA + diffuseur local), et un lien « Autre source » ouvre une recherche YouTube qui fonctionne partout.</p>
+    <p>Sources recommandées : <a href="https://www.youtube.com/@FIFA" target="_blank" rel="noopener">chaîne officielle FIFA</a>, résumés des diffuseurs nationaux, <a href="https://www.plus.fifa.com" target="_blank" rel="noopener">FIFA+</a>.</p>
+  </div></details>`;
+}
+
+/* ---------- Rendu principal ---------- */
+function render(){
+  const r=route();
+  $('#tabM').classList.toggle('on', r.v!=='top');
+  $('#tabT').classList.toggle('on', r.v==='top');
+  $('#gear').classList.toggle('on', editMode);
+  if(r.v==='match') renderMatch(r.id);
+  else if(r.v==='top') renderTop();
+  else renderList();
+  if(r.v!=='match') window.scrollTo({top:0});
+}
+render();
+</script>
+</body>
+</html>
