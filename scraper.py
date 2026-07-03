@@ -43,6 +43,17 @@ TEAMS = {
 "SEN":("Sénégal","🇸🇳"),"SUI":("Suisse","🇨🇭"),"SWE":("Suède","🇸🇪"),"TUN":("Tunisie","🇹🇳"),
 "UZB":("Ouzbékistan","🇺🇿"),"USA":("États-Unis","🇺🇸"),"URU":("Uruguay","🇺🇾"),"JAM":("Jamaïque","🇯🇲"),
 }
+
+EN_NAMES={"algeria":"ALG","argentina":"ARG","australia":"AUS","austria":"AUT","belgium":"BEL",
+"bosnia":"BIH","brazil":"BRA","canada":"CAN","cape verde":"CPV","cabo verde":"CPV","colombia":"COL",
+"ivory coast":"CIV","cote d'ivoire":"CIV","croatia":"CRO","curacao":"CUW","ecuador":"ECU","egypt":"EGY",
+"england":"ENG","spain":"ESP","france":"FRA","germany":"GER","ghana":"GHA","haiti":"HAI","iran":"IRN",
+"iraq":"IRQ","italy":"ITA","japan":"JPN","jordan":"JOR","south korea":"KOR","korea republic":"KOR",
+"saudi arabia":"KSA","morocco":"MAR","mexico":"MEX","netherlands":"NED","new zealand":"NZL",
+"norway":"NOR","panama":"PAN","paraguay":"PAR","portugal":"POR","qatar":"QAT","dr congo":"COD",
+"congo dr":"COD","south africa":"RSA","scotland":"SCO","senegal":"SEN","switzerland":"SUI",
+"sweden":"SWE","tunisia":"TUN","uzbekistan":"UZB","united states":"USA","uruguay":"URU","jamaica":"JAM"}
+
 MONTHS={"January":1,"February":2,"March":3,"April":4,"May":5,"June":6,"July":7,"August":8,"September":9,"October":10,"November":11,"December":12}
 
 def norm(s):
@@ -64,9 +75,9 @@ def parse_goals(block, team):
         line=line.strip()
         if not line: continue
         # nom du joueur = texte avant le premier {{goal
-        head=line.split("{{goal",1)[0]
+        head=re.split(r"\{\{[Gg]oal", line, 1)[0]
         player=clean_wiki(head).strip(" ,;·")
-        for g in re.finditer(r"\{\{goal\|([^}|]*)(?:\|([^}]*))?\}\}", line):
+        for g in re.finditer(r"\{\{[Gg]oal\|([^}|]*)(?:\|([^}]*))?\}\}", line):
             minute=g.group(1).strip().replace("'","")
             extra=(g.group(2) or "").lower()
             gtype=""
@@ -92,10 +103,23 @@ def parse_page(title, stage, group=None):
         def field(name):
             f=re.search(r"\|\s*"+name+r"\s*=\s*(.*?)(?=\n\s*\||\Z)", b, re.S)
             return f.group(1).strip() if f else ""
-        t1=re.search(r"\{\{fb(?:-rt)?\|(\w{3})", field("team1"))
-        t2=re.search(r"\{\{fb(?:-rt)?\|(\w{3})", field("team2"))
-        if not t1 or not t2: continue
-        c1,c2=t1.group(1).upper(), t2.group(1).upper()
+        raw1, raw2 = field("team1"), field("team2")
+        if bi==0 and title.endswith(("Group_A","knockout_stage")):
+            DEBUG.append("team1 brut %s: %s"%(title[-12:], raw1[:150].replace("\n"," ")))
+        def team_code(raw):
+            m1=re.search(r"\{\{\s*(?:fb|fbw|fb-rt|nft|fbaig)\s*\|\s*([A-Za-z]{3})\b", raw)
+            if m1: return m1.group(1).upper()
+            m2=re.search(r"\{\{[^}|]*\|\s*([A-Z]{3})\s*\}\}", raw)
+            if m2: return m2.group(1).upper()
+            txt=norm(clean_wiki(raw))
+            for code,(name,_f) in TEAMS.items():
+                if norm(name) in txt or any(a in txt for a in ALIASES.get(code,[])):
+                    return code
+            for en,code in EN_NAMES.items():
+                if en in txt: return code
+            return None
+        c1,c2=team_code(raw1),team_code(raw2)
+        if not c1 or not c2: continue
         score=field("score")
         sc=re.search(r"(\d+)\s*[–-]\s*(\d+)", score)
         aet = "a.e.t" in score.lower() or "aet" in score.lower()
