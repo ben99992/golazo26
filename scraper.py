@@ -64,7 +64,7 @@ def parse_goals(block, team):
 
 def parse_page(title, stage, group=None):
     """parse tous les {{footballbox}} d'une page wikipédia"""
-    wikitext=get("https://en.wikipedia.org/wiki/"+title+"?action=raw")
+    wikitext=get("https://en.wikipedia.org/w/index.php?title="+urllib.parse.quote(title)+"&action=raw")
     out=[]
     for m in re.finditer(r"\{\{football box\b(.*?)\n\}\}", wikitext, re.S|re.I):
         b=m.group(1)
