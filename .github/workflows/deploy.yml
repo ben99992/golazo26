@@ -2,9 +2,12 @@ name: Deploy Pages
 on:
   push:
     branches: [main]
+    paths-ignore: ["data.json"]
   workflow_dispatch:
+  schedule:
+    - cron: "0 5,17 * * *"
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 concurrency:
@@ -18,6 +21,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Collecte des données (Wikipédia + Dailymotion)
+        run: python3 scraper.py
+      - name: Commit data.json
+        run: |
+          git config user.name "golazo-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add data.json
+          git commit -m "data: actualisation automatique" || echo "aucun changement"
+          git push || echo "push inutile"
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
