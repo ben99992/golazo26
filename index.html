@@ -106,7 +106,10 @@ header{position:sticky;top:0;z-index:50;background:rgba(16,21,27,.88);backdrop-f
 /* Vidéo */
 .vwrap{margin-top:11px}
 .vcap{font-size:12px;color:var(--muted);margin-bottom:6px}
-.vwrap iframe{width:100%;aspect-ratio:16/9;border:1px solid var(--line);border-radius:10px;background:#000;display:block}
+.ytbox{aspect-ratio:16/9;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#000}
+.ytbox iframe{width:100%;height:100%;display:block;border:0}
+.vsrc{font-size:11px;color:var(--muted);margin-top:6px}
+.vfall{border:1px dashed var(--line);border-radius:10px;padding:22px 14px;text-align:center;color:var(--muted);font-size:13px}
 .srcs{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;align-items:center}
 .srcbtn{font-size:11.5px;border:1px solid var(--line);border-radius:999px;padding:4px 10px;color:var(--muted);background:var(--surface2)}
 .srcbtn.on{border-color:var(--amber);color:var(--amber)}
@@ -218,7 +221,7 @@ matches:[
    {id:'g80b',team:'H',player:'Harry Kane',minute:'86',type:'',note:'Coup de canon décisif, encore servi par Gordon',sources:[]}]},
  {id:'m79',n:79,stage:'R32',date:'2026-07-01',city:'Mexico',stadium:'Estadio Azteca',
   home:{code:'MEX',name:'Mexique',flag:'🇲🇽'},away:{code:'ECU',name:'Équateur',flag:'🇪🇨'},sh:2,sa:0,status:'fini',
-  videos:[{id:'t-miz8tN7Qw',start:0,label:'FIFA'},{id:'UDH9nQPl67k',start:0,label:'FOX Sports'},{id:'Tgl7hUUH6vE',start:0,label:'France 24'}],goals:[
+  videos:[{id:'t-miz8tN7Qw',start:0,label:'FIFA'},{id:'Tgl7hUUH6vE',start:0,label:'France 24'},{id:'UDH9nQPl67k',start:0,label:'FOX Sports'}],goals:[
    {id:'g79a',team:'H',player:'Julián Quiñones',minute:'22',type:'',note:'',sources:[]},
    {id:'g79b',team:'H',player:'Raúl Jiménez',minute:'31',type:'',note:'',sources:[]}]},
  {id:'m77',n:77,stage:'R32',date:'2026-06-30',city:'New York',stadium:'MetLife Stadium',
@@ -230,7 +233,7 @@ matches:[
  // ----- Phase de groupes (matchs marquants renseignés) -----
  {id:'mA1',n:null,stage:'GRP',group:'J',date:'2026-06-16',city:'Kansas City',stadium:'',
   home:{code:'ARG',name:'Argentine',flag:'🇦🇷'},away:{code:'ALG',name:'Algérie',flag:'🇩🇿'},sh:3,sa:0,status:'fini',
-  videos:[{id:'JH_WRKTCPK4',start:0,label:'FIFA'},{id:'ahEC9cgvoaQ',start:0,label:'FOX Sports'},{id:'GW6BR00nsHQ',start:0,label:'France 24'}],goals:[
+  videos:[{id:'JH_WRKTCPK4',start:0,label:'FIFA'},{id:'GW6BR00nsHQ',start:0,label:'France 24'},{id:'ahEC9cgvoaQ',start:0,label:'FOX Sports'}],goals:[
    {id:'gA1a',team:'H',player:'Lionel Messi',minute:'17',type:'',note:'Frappe enroulée après une passe de De Paul',sources:[]},
    {id:'gA1b',team:'H',player:'Lionel Messi',minute:'60',type:'',note:'A suivi une frappe de Mac Allister repoussée par le gardien',sources:[]},
    {id:'gA1c',team:'H',player:'Lionel Messi',minute:'76',type:'',note:'Du gauche, servi par Nico González — égale le record de Klose (16 buts en Coupe du monde)',sources:[{id:'fqk4Ag-Y6CA',start:0,label:'FIFA — le but'}]}]},
@@ -252,7 +255,7 @@ matches:[
 ]};
 
 /* ---------- Persistance ---------- */
-const K_DATA='golazo26_data_v4', K_RATE='golazo26_ratings_v1', K_EDIT='golazo26_edit';
+const K_DATA='golazo26_data_v5', K_RATE='golazo26_ratings_v1', K_EDIT='golazo26_edit';
 let DB = load(K_DATA) || structuredClone(SEED);
 let RATES = load(K_RATE) || {};
 let editMode = localStorage.getItem(K_EDIT)==='1';
@@ -383,15 +386,7 @@ function renderMatch(id){
   // Résumé complet embarqué (vidéo de match)
   const vids=m.videos||[];
   if(vids.length){
-    const cur=Math.min(state_srcIdx['M'+m.id]||0, vids.length-1), v=vids[cur];
-    html+=`<div class="vwrap" id="vw-M${m.id}" style="margin-top:12px">
-      <p class="vcap">▶ Résumé complet du match</p>
-      ${ytIframe(v.id, v.start)}
-      <div class="srcs">
-        ${vids.map((x,i)=>`<button class="srcbtn ${i===cur?'on':''}" onclick="setSrc('M${m.id}',${i})">${esc(x.label||'Source '+(i+1))}</button>`).join('')}
-        <a class="srcbtn" href="${ytWatch(v.id,v.start)}" target="_blank" rel="noopener">Ouvrir sur YouTube ↗</a>
-      </div>
-    </div>`;
+    html+=`<div style="margin-top:12px">${videoBlock('M'+m.id, vids, '▶ Résumé complet du match')}</div>`;
   }
 
   // Frise des minutes (signature) — épingles pour les buts dont la minute est connue
@@ -431,29 +426,15 @@ function goalCard(m,g){
   const t=goalTeam(m,g);
   const my=RATES[g.id];
   const own=g.sources||[];
-  const inherited=!own.length ? (m.videos||[]).map(v=>({id:v.id,start:v.start||0,label:(v.label||'Résumé du match'),inh:true})) : [];
+  const inherited=!own.length ? (m.videos||[]).map(v=>({id:v.id,start:v.start||0,label:v.label||'Résumé'})) : [];
   const src=own.length?own:inherited;
-  const cur=Math.min(state_srcIdx[g.id]||0, Math.max(0,src.length-1));
-  const s=src[cur];
 
   let video;
-  if(s){
-    const cap = own.length ? '' : `<p class="vcap">📼 Résumé officiel du match — ce but y figure. En mode édition (✎), collez un lien horodaté pour pointer directement le but.</p>`;
-    video=`<div class="vwrap" id="vw-${g.id}">
-      ${cap}
-      ${ytIframe(s.id, s.start)}
-      <div class="srcs">
-        ${src.map((x,i)=>`<button class="srcbtn ${i===cur?'on':''}" onclick="setSrc('${g.id}',${i})">${esc(x.label||'Source '+(i+1))}</button>`).join('')}
-        <a class="srcbtn" href="${ytWatch(s.id,s.start)}" target="_blank" rel="noopener">Ouvrir sur YouTube ↗</a>
-      </div>
-    </div>`;
+  if(src.length){
+    video=videoBlock(g.id, src, own.length?'':'Extrait : résumé officiel du match');
   } else {
-    video=`<div class="novid">Pas encore de vidéo référencée pour ce but.
-      <br><a class="ytlink" href="${ytSearchURL(m,g)}" target="_blank" rel="noopener">↗ Chercher sur YouTube</a>
-      ${editMode?'':'<div class="hint" style="margin-top:6px">Mode édition (✎) pour ajouter un lien officiel.</div>'}</div>`;
+    video=`<div class="novid">Pas encore de vidéo référencée pour ce but.${editMode?'':' <span class="hint">Mode édition (✎) pour en ajouter une.</span>'}</div>`;
   }
-
-  const segs=Array.from({length:10},(_,i)=>`<button class="rseg ${my>=i+1?'lit':''}" onclick="rate('${g.id}',${i+1})" aria-label="Noter ${i+1} sur 10">${i+1}</button>`).join('');
 
   return `<article class="goal ${g.team==='H'?'home':'away'}" id="goal-${g.id}">
     <div class="ghead">
@@ -465,25 +446,75 @@ function goalCard(m,g){
     </div>
     ${g.note?`<p class="gnote">${esc(g.note)}</p>`:''}
     ${video}
-    <div class="rate">
-      <span class="rlab">Ma note</span>${segs}
-      ${my?`<span class="rval">${my}/10</span><button class="rclear" onclick="rate('${g.id}',0)">effacer</button>`:''}
-    </div>
+    <div class="rate">${rateInner(g.id,my)}</div>
   </article>`;
 }
 
-const state_srcIdx={};
-function setSrc(gid,i){ state_srcIdx[gid]=i; render(); }
-function ytIframe(vid,start){
-  return `<iframe loading="lazy" src="https://www.youtube.com/embed/${esc(vid)}?start=${start||0}&rel=0&playsinline=1&hl=fr"
-    title="Vidéo YouTube" allow="accelerometer; autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>`;
+/* ---------- Lecteur intelligent : une seule vidéo affichée, bascule automatique
+   de source (API IFrame YouTube) si la vidéo est bloquée ou géorestreinte ---------- */
+const PLAYERQ={};
+let YT_READY=!!(window.YT&&window.YT.Player);
+window.onYouTubeIframeAPIReady=function(){ YT_READY=true; initPlayers(); };
+function ensureYT(){
+  if(window.YT&&window.YT.Player){ YT_READY=true; initPlayers(); return; }
+  if(!document.getElementById('ytapi')){
+    const sc=document.createElement('script'); sc.id='ytapi';
+    sc.src='https://www.youtube.com/iframe_api'; document.head.appendChild(sc);
+  }
+}
+function videoBlock(uid,sources,cap){
+  PLAYERQ[uid]={list:sources,idx:0};
+  return `<div class="vwrap">
+    ${cap?`<p class="vcap">${cap}</p>`:''}
+    <div class="ytbox"><div id="p-${uid}"></div></div>
+    <div class="vsrc" id="s-${uid}">Source : ${esc(sources[0].label||'vidéo officielle')}</div>
+  </div>`;
+}
+function initPlayers(){
+  if(!YT_READY) return;
+  for(const uid in PLAYERQ){
+    const q=PLAYERQ[uid];
+    if(q.done) continue;
+    const el=document.getElementById('p-'+uid);
+    if(!el) continue;
+    q.done=true;
+    const src=q.list[0];
+    q.player=new YT.Player('p-'+uid,{
+      videoId:src.id,
+      playerVars:{start:src.start||0,rel:0,playsinline:1,hl:'fr'},
+      events:{onError:function(){ nextSource(uid); }}
+    });
+  }
+}
+function nextSource(uid){
+  const q=PLAYERQ[uid]; if(!q) return;
+  q.idx++;
+  const nxt=q.list[q.idx], lab=document.getElementById('s-'+uid);
+  if(nxt){
+    if(lab) lab.textContent='Source : '+(nxt.label||'')+' (bascule automatique)';
+    try{ q.player.loadVideoById({videoId:nxt.id, startSeconds:nxt.start||0}); }catch(e){}
+  } else {
+    const first=q.list[0];
+    const box=document.getElementById('p-'+uid);
+    const wrap=box && box.closest ? box.closest('.vwrap') : null;
+    if(wrap) wrap.innerHTML=`<div class="vfall">Aucune version intégrable disponible dans votre pays pour cette vidéo.<br>
+      <a class="btn" style="display:inline-block;margin-top:10px" href="${ytWatch(first.id,first.start)}" target="_blank" rel="noopener">▶ Regarder sur YouTube</a></div>`;
+  }
 }
 function ytWatch(vid,start){
   return `https://www.youtube.com/watch?v=${encodeURIComponent(vid)}${start?'&t='+start+'s':''}`;
 }
+function rateInner(gid,my){
+  return `<span class="rlab">Ma note</span>`+
+    Array.from({length:10},(_,i)=>`<button class="rseg ${my>=i+1?'lit':''}" onclick="rate('${gid}',${i+1})" aria-label="Noter ${i+1} sur 10">${i+1}</button>`).join('')+
+    (my?`<span class="rval">${my}/10</span><button class="rclear" onclick="rate('${gid}',0)">effacer</button>`:'');
+}
 function rate(gid,n){
   if(n===0) delete RATES[gid]; else RATES[gid]=n;
-  saveRates(); render();
+  saveRates();
+  const card=document.getElementById('goal-'+gid);
+  if(card){ card.querySelector('.rate').innerHTML=rateInner(gid,RATES[gid]); }
+  else render();
 }
 
 /* =========================================================
@@ -681,6 +712,7 @@ function rightsPanel(){
 
 /* ---------- Rendu principal ---------- */
 function render(){
+  for(const k in PLAYERQ){ try{ PLAYERQ[k].player&&PLAYERQ[k].player.destroy(); }catch(e){} delete PLAYERQ[k]; }
   const r=route();
   $('#tabM').classList.toggle('on', r.v!=='top');
   $('#tabT').classList.toggle('on', r.v==='top');
@@ -689,6 +721,7 @@ function render(){
   else if(r.v==='top') renderTop();
   else renderList();
   if(r.v!=='match') window.scrollTo({top:0});
+  ensureYT();
 }
 render();
 </script>
