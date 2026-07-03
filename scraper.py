@@ -175,11 +175,19 @@ def collect_matches():
             print("groupe",letter,"ok")
         except Exception as e:
             DEBUG.append("groupe %s: %r"%(letter,e))
+    for extra,stg in (("2026_FIFA_World_Cup_round_of_32","R32"),
+                      ("2026_FIFA_World_Cup_round_of_16","R16")):
+        try:
+            matches+=parse_page(extra,stg)
+            print(extra,"ok")
+        except Exception as e:
+            DEBUG.append("%s: %r"%(extra.split("Cup_")[-1],e))
     try:
-        ko=parse_page("2026_FIFA_World_Cup_knockout_stage","KO")
+        ko=parse_page("2026_FIFA_World_Cup_knockout_stage","R16")
         # phase à élimination : déduire le tour d'après la date
         for m in ko:
             d=m["date"]
+            if not d: continue
             if d>="2026-07-19": m["stage"]="F"
             elif d=="2026-07-18": m["stage"]="TP"
             elif d>="2026-07-14": m["stage"]="SF"
@@ -240,8 +248,18 @@ def attach_videos(matches):
             m["videos"].append({"kind":"dm","id":v["id"],"label":v["label"],"title":v["title"]})
     return matches
 
+def dedupe(matches):
+    best={}
+    for m in matches:
+        k=m["id"]
+        cur=best.get(k)
+        if cur is None: best[k]=m; continue
+        score=lambda x:(x["sh"] is not None, len(x["goals"]), bool(x["date"]))
+        if score(m)>score(cur): best[k]=m
+    return list(best.values())
+
 def main():
-    matches=collect_matches()
+    matches=dedupe(collect_matches())
     matches=attach_videos(matches)
     nb_g=sum(len(m["goals"]) for m in matches)
     nb_v=sum(1 for m in matches if m["videos"])
