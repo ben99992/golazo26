@@ -242,4 +242,15 @@ def main():
     print("RESUME: %d matchs, %d buts, %d vidéos, %d terminés"%(len(matches),nb_g,nb_v,fini))
 
 if __name__=="__main__":
-    main()
+    try:
+        main()
+    except Exception:
+        import traceback
+        tb=traceback.format_exc().splitlines()[-6:]
+        DEBUG.extend(tb)
+        data={"updated":datetime.datetime.utcnow().isoformat()+"Z",
+              "stats":{"matches":0,"goals":0,"videos":0,"finis":0,"debug":DEBUG[-25:]},
+              "matches":[]}
+        with open("data.json","w",encoding="utf-8") as f:
+            json.dump(data,f,ensure_ascii=False)
+        print("CRASH capturé -> data.json")
