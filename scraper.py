@@ -81,11 +81,14 @@ def parse_page(title, stage, group=None):
     wikitext=get_wikitext(title)
     time.sleep(1.2)
     out=[]
-    starts=[x.start() for x in re.finditer(r"\{\{\s*[Ff]ootball[ _]box", wikitext)]
-    DEBUG.append("%s: len=%d boxes=%d"%(title.split('Cup_')[-1], len(wikitext), len(starts)))
+    starts=[x.start() for x in re.finditer(r"\|\s*team1\s*=", wikitext)]
+    DEBUG.append("%s: anchors=%d goals1=%d goaltpl=%d fb=%d fbox=%d msum=%d"%(
+        title.split('Cup_')[-1], len(starts), wikitext.count("goals1"),
+        wikitext.count("{{goal"), wikitext.count("{{fb"),
+        len(re.findall(r"[Ff]ootball ?box", wikitext)), wikitext.count("atch summary")))
     for bi,a in enumerate(starts):
         end = starts[bi+1] if bi+1 < len(starts) else min(len(wikitext), a+6000)
-        b = wikitext[a:end]
+        b = wikitext[max(0,a-300):end]
         def field(name):
             f=re.search(r"\|\s*"+name+r"\s*=\s*(.*?)(?=\n\s*\||\Z)", b, re.S)
             return f.group(1).strip() if f else ""
