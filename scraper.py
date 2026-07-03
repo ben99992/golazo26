@@ -6,14 +6,20 @@ Tourne dans GitHub Actions (internet ouvert) :
 2. API Dailymotion (beIN SPORTS France, L'Équipe) -> résumé vidéo par match
 Sortie : data.json
 """
-import json, re, sys, unicodedata, urllib.request, urllib.parse, datetime
+import json, re, sys, time, unicodedata, urllib.request, urllib.parse, urllib.error, datetime
 
 UA = {"User-Agent": "golazo26-bot/1.0 (projet perso; contact via github ben99992)"}
 
 DEBUG=[]
-def get(url):
-    req = urllib.request.Request(url, headers=UA)
-    return urllib.request.urlopen(req, timeout=30).read().decode("utf-8")
+def get(url, tries=4):
+    for k in range(tries):
+        try:
+            req = urllib.request.Request(url, headers=UA)
+            return urllib.request.urlopen(req, timeout=30).read().decode("utf-8")
+        except urllib.error.HTTPError as e:
+            if e.code in (429,503) and k < tries-1:
+                time.sleep(4*(k+1)); continue
+            raise
 
 def get_wikitext(title):
     url=("https://en.wikipedia.org/w/api.php?action=parse&prop=wikitext&format=json"
@@ -73,9 +79,13 @@ def parse_goals(block, team):
 def parse_page(title, stage, group=None):
     """parse tous les {{footballbox}} d'une page wikipédia"""
     wikitext=get_wikitext(title)
+    time.sleep(1.2)
     out=[]
-    for m in re.finditer(r"\{\{football box\b(.*?)\n\}\}", wikitext, re.S|re.I):
-        b=m.group(1)
+    starts=[x.start() for x in re.finditer(r"\{\{\s*[Ff]ootball[ _]box", wikitext)]
+    DEBUG.append("%s: len=%d boxes=%d"%(title.split('Cup_')[-1], len(wikitext), len(starts)))
+    for bi,a in enumerate(starts):
+        end = starts[bi+1] if bi+1 < len(starts) else min(len(wikitext), a+6000)
+        b = wikitext[a:end]
         def field(name):
             f=re.search(r"\|\s*"+name+r"\s*=\s*(.*?)(?=\n\s*\||\Z)", b, re.S)
             return f.group(1).strip() if f else ""
