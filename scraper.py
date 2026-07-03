@@ -74,17 +74,24 @@ def parse_goals(block, team):
     for line in re.split(r"[\n]", block):
         line=line.strip()
         if not line: continue
-        # nom du joueur = texte avant le premier {{goal
-        head=re.split(r"\{\{[Gg]oal", line, 1)[0]
-        player=clean_wiki(head).strip(" ,;·")
-        for g in re.finditer(r"\{\{[Gg]oal\|([^}|]*)(?:\|([^}]*))?\}\}", line):
-            minute=g.group(1).strip().replace("'","")
-            extra=(g.group(2) or "").lower()
+        first=None; events=[]
+        for t in re.finditer(r"\{\{([^{}]*)\}\}", line):
+            parts=[p.strip() for p in t.group(1).split("|")]
+            mins=[p.replace("'","") for p in parts if re.match(r"^\d+(\+\d+)?'?$", p)]
+            if not mins: continue
+            if first is None: first=t.start()
+            extra=" ".join(parts).lower()
             gtype=""
             if "pen" in extra: gtype="pen"
-            elif "o.g" in extra or "og" in extra: gtype="og"
-            if player:
-                goals.append({"team":team,"player":player,"minute":minute,"type":gtype})
+            elif "o.g" in extra or re.search(r"\bog\b", extra): gtype="og"
+            for mn in mins:
+                events.append((mn,gtype))
+        if not events: continue
+        player=clean_wiki(line[:first]).strip(" ,;·*")
+        player=re.sub(r"\{\{[^}]*\}\}","",player).strip()
+        if not player: continue
+        for mn,gtype in events:
+            goals.append({"team":team,"player":player,"minute":mn,"type":gtype})
     return goals
 
 def parse_page(title, stage, group=None):
@@ -105,8 +112,11 @@ def parse_page(title, stage, group=None):
             return f.group(1).strip() if f else ""
         raw1, raw2 = field("team1"), field("team2")
         if bi==0 and title.endswith(("Group_A","knockout_stage")):
-            DEBUG.append("team1 brut %s: %s"%(title[-12:], raw1[:150].replace("\n"," ")))
+            DEBUG.append("team1 brut: %s"%raw1[:120].replace("\n"," "))
+            DEBUG.append("goals1 brut: %s"%field("goals1")[:220].replace("\n"," / "))
         def team_code(raw):
+            m0=re.search(r"\{\{#invoke:flag\|[^|}]*\|\s*([A-Za-z]{3})\b", raw)
+            if m0: return m0.group(1).upper()
             m1=re.search(r"\{\{\s*(?:fb|fbw|fb-rt|nft|fbaig)\s*\|\s*([A-Za-z]{3})\b", raw)
             if m1: return m1.group(1).upper()
             m2=re.search(r"\{\{[^}|]*\|\s*([A-Z]{3})\s*\}\}", raw)
