@@ -273,8 +273,34 @@ matches:[
 ]};
 
 /* ---------- Persistance ---------- */
-const K_DATA='golazo26_data_v6', K_RATE='golazo26_ratings_v1', K_EDIT='golazo26_edit';
-let DB = load(K_DATA) || structuredClone(SEED);
+const K_DATA='golazo26_data_v7', K_RATE='golazo26_ratings_v1', K_EDIT='golazo26_edit';
+let DB = load(K_DATA);   // présent uniquement si l'utilisateur a édité les données
+function matchKey(m){ return [m.home.code,m.away.code].sort().join('-')+'|'+(m.date||''); }
+function mergeCurated(remote, curated){
+  const map=new Map(remote.map(m=>[matchKey(m),m]));
+  const byCodes=new Map(remote.map(m=>[[m.home.code,m.away.code].sort().join('-'),m]));
+  for(const c of curated){
+    let r=map.get(matchKey(c)) || byCodes.get([c.home.code,c.away.code].sort().join('-'));
+    if(!r){ remote.push(c); continue; }
+    if(c.goals.length>=r.goals.length) r.goals=c.goals;          // fiches enrichies (notes, clips)
+    r.videos=[...(r.videos||[]),...(c.videos||[])];              // Dailymotion d'abord, YouTube ensuite
+    if(c.info) r.info=c.info;
+    if(c.city) r.city=c.city;
+    if(c.stadium) r.stadium=c.stadium;
+    if(c.n) r.n=c.n;
+  }
+  return remote;
+}
+async function boot(){
+  if(!DB){
+    try{
+      const resp=await fetch('data.json',{cache:'no-store'});
+      const remote=await resp.json();
+      DB={updated:remote.updated, matches:mergeCurated(remote.matches, structuredClone(SEED.matches))};
+    }catch(e){ DB=structuredClone(SEED); }
+  }
+  render();
+}
 let RATES = load(K_RATE) || {};
 let editMode = localStorage.getItem(K_EDIT)==='1';
 function load(k){ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):null }catch(e){ return null } }
@@ -367,12 +393,13 @@ function renderList(){
       <span class="sc ${done?'':'tbd'}">${done?`${m.sh} – ${m.sa}`:(played?'terminé':'à venir')}</span>
       <span class="team away"><span class="nm">${esc(m.away.name)}</span><span class="flg">${m.away.flag}</span></span>
       <span class="msub">
-        <span class="stg">${STAGES[m.stage]}</span>
+        <span class="stg">${STAGES[m.stage]}${m.stage==='GRP'&&m.group?' '+esc(m.group):''}</span>
         ${m.city?`<span>${esc(m.city)}${m.stadium?' · '+esc(m.stadium):''}</span>`:''}
         ${done&&tot>0?`<span class="gcount">▶ ${Math.min(nbV,tot)}/${tot} but${tot>1?'s':''} en vidéo</span>`:''}
       </span>
     </button>`;
   }
+  html+=`<p class="hint" style="text-align:center;margin-top:16px">Données actualisées automatiquement${DB.updated?' · '+esc(String(DB.updated).slice(0,10)):''} · résumés vidéo : beIN SPORTS & L'Équipe (Dailymotion), FIFA (YouTube)</p>`;
   html+=rightsPanel();
   $('#app').innerHTML=html;
   const si=$('#search');
@@ -423,7 +450,9 @@ function renderMatch(id){
 
   if(!m.goals.length && !done) html+=`<p class="empty">Match à venir — les buts apparaîtront ici.</p>`;
   if(!m.goals.length && done && tot===0) html+=`<p class="empty">0–0 : rien à voir ici… littéralement.</p>`;
-  if(!m.goals.length && done && tot>0) html+=`<p class="empty">${tot} but${tot>1?'s':''} à référencer.<br><span class="hint">Activez le mode édition (✎) pour les ajouter.</span></p>`;
+  if(!m.goals.length && done && tot>0) html+= (m.videos&&m.videos.length)
+    ? `<p class="hint" style="text-align:center;margin:10px 0 16px">Les ${tot} but${tot>1?'s':''} de ce match sont dans le résumé ci-dessus. Le détail buteur par buteur arrive (✎ pour l'ajouter soi-même).</p>`
+    : `<p class="empty">${tot} but${tot>1?'s':''} à référencer.<br><span class="hint">Activez le mode édition (✎) pour les ajouter.</span></p>`;
 
   // tri des buts : minute connue d'abord (ordre chrono), puis les autres
   const sorted=[...m.goals].sort((a,b)=>{
@@ -444,7 +473,7 @@ function goalCard(m,g){
   const t=goalTeam(m,g);
   const my=RATES[g.id];
   const own=g.sources||[];
-  const inherited=!own.length ? (m.videos||[]).map(v=>({id:v.id,start:v.start||0,label:v.label||'Résumé'})) : [];
+  const inherited=!own.length ? (m.videos||[]).map(v=>({kind:v.kind,id:v.id,start:v.start||0,label:v.label||'Résumé',title:v.title})) : [];
   const src=own.length?own:inherited;
 
   let video;
@@ -481,7 +510,17 @@ function ensureYT(){
   }
 }
 function videoBlock(uid,sources,cap){
-  PLAYERQ[uid]={list:sources,idx:0};
+  const dm=sources.find(x=>x.kind==='dm');
+  if(dm){
+    return `<div class="vwrap">
+      ${cap?`<p class="vcap">${cap}</p>`:''}
+      <div class="ytbox"><iframe loading="lazy" src="https://geo.dailymotion.com/player.html?video=${esc(dm.id)}"
+        title="${esc(dm.title||'Résumé du match')}" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe></div>
+      <div class="vsrc">Source : ${esc(dm.label||'Dailymotion')} — diffuseur officiel, lisible en France</div>
+    </div>`;
+  }
+  const yt=sources.filter(x=>!x.kind||x.kind==='yt');
+  PLAYERQ[uid]={list:yt,idx:0};
   return `<div class="vwrap">
     ${cap?`<p class="vcap">${cap}</p>`:''}
     <div class="ytbox"><div id="p-${uid}"></div></div>
@@ -741,7 +780,8 @@ function render(){
   if(r.v!=='match') window.scrollTo({top:0});
   ensureYT();
 }
-render();
+if(DB){ render(); } else { $('#app').innerHTML='<p class="empty">Chargement des matchs…</p>'; }
+boot();
 </script>
 </body>
 </html>
