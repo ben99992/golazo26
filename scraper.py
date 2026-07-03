@@ -10,9 +10,17 @@ import json, re, sys, unicodedata, urllib.request, urllib.parse, datetime
 
 UA = {"User-Agent": "golazo26-bot/1.0 (projet perso; contact via github ben99992)"}
 
+DEBUG=[]
 def get(url):
     req = urllib.request.Request(url, headers=UA)
     return urllib.request.urlopen(req, timeout=30).read().decode("utf-8")
+
+def get_wikitext(title):
+    url=("https://en.wikipedia.org/w/api.php?action=parse&prop=wikitext&format=json"
+         "&formatversion=2&redirects=1&page="+urllib.parse.quote(title))
+    j=json.loads(get(url))
+    if "error" in j: raise RuntimeError(j["error"].get("info","api error"))
+    return j["parse"]["wikitext"]
 
 # ---------------- équipes : code FIFA -> (nom FR, drapeau) ----------------
 TEAMS = {
@@ -64,7 +72,7 @@ def parse_goals(block, team):
 
 def parse_page(title, stage, group=None):
     """parse tous les {{footballbox}} d'une page wikipédia"""
-    wikitext=get("https://en.wikipedia.org/w/index.php?title="+urllib.parse.quote(title)+"&action=raw")
+    wikitext=get_wikitext(title)
     out=[]
     for m in re.finditer(r"\{\{football box\b(.*?)\n\}\}", wikitext, re.S|re.I):
         b=m.group(1)
@@ -109,7 +117,7 @@ def collect_matches():
             matches+=parse_page("2026_FIFA_World_Cup_Group_"+letter,"GRP",letter)
             print("groupe",letter,"ok")
         except Exception as e:
-            print("groupe",letter,"ERREUR",e, file=sys.stderr)
+            DEBUG.append("groupe %s: %r"%(letter,e))
     try:
         ko=parse_page("2026_FIFA_World_Cup_knockout_stage","KO")
         # phase à élimination : déduire le tour d'après la date
@@ -122,7 +130,7 @@ def collect_matches():
         matches+=ko
         print("knockout ok:",len(ko))
     except Exception as e:
-        print("knockout ERREUR",e, file=sys.stderr)
+        DEBUG.append("knockout: %r"%(e,))
     return matches
 
 # ---------------- vidéos Dailymotion ----------------
@@ -134,7 +142,7 @@ def dm_videos(user, query):
         try:
             j=json.loads(get(url))
         except Exception as e:
-            print("dm",user,"page",page,"ERREUR",e,file=sys.stderr); break
+            DEBUG.append("dm %s p%d: %r"%(user,page,e)); break
         vids+=j.get("list",[])
         if not j.get("has_more"): break
     return vids
@@ -180,7 +188,7 @@ def main():
     nb_v=sum(1 for m in matches if m["videos"])
     fini=sum(1 for m in matches if m["status"]=="fini")
     data={"updated":datetime.datetime.utcnow().isoformat()+"Z",
-          "stats":{"matches":len(matches),"goals":nb_g,"videos":nb_v,"finis":fini},
+          "stats":{"matches":len(matches),"goals":nb_g,"videos":nb_v,"finis":fini,"debug":DEBUG[:20]},
           "matches":matches}
     with open("data.json","w",encoding="utf-8") as f:
         json.dump(data,f,ensure_ascii=False,separators=(",",":"))
