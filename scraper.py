@@ -41,7 +41,7 @@ TEAMS = {
 "NOR":("Norvège","🇳🇴"),"PAN":("Panama","🇵🇦"),"PAR":("Paraguay","🇵🇾"),"POR":("Portugal","🇵🇹"),
 "QAT":("Qatar","🇶🇦"),"COD":("RD Congo","🇨🇩"),"RSA":("Afrique du Sud","🇿🇦"),"SCO":("Écosse","🏴󠁧󠁢󠁳󠁣󠁴󠁿"),
 "SEN":("Sénégal","🇸🇳"),"SUI":("Suisse","🇨🇭"),"SWE":("Suède","🇸🇪"),"TUN":("Tunisie","🇹🇳"),
-"UZB":("Ouzbékistan","🇺🇿"),"USA":("États-Unis","🇺🇸"),"URU":("Uruguay","🇺🇾"),"JAM":("Jamaïque","🇯🇲"),
+"UZB":("Ouzbékistan","🇺🇿"),"CZE":("Tchéquie","🇨🇿"),"UKR":("Ukraine","🇺🇦"),"POL":("Pologne","🇵🇱"),"USA":("États-Unis","🇺🇸"),"URU":("Uruguay","🇺🇾"),"JAM":("Jamaïque","🇯🇲"),
 }
 
 EN_NAMES={"algeria":"ALG","argentina":"ARG","australia":"AUS","austria":"AUT","belgium":"BEL",
@@ -72,8 +72,18 @@ def parse_goals(block, team):
     if not block: return goals
     block=re.sub(r"<br\s*/?>", "\n", block)
     for line in re.split(r"[\n]", block):
-        line=line.strip()
+        line=line.strip().lstrip("*").strip()
         if not line: continue
+        plain=list(re.finditer(r"(\d+(?:\+\d+)?)'(?:\s*\(([^)]{0,20})\))?", line))
+        if plain:
+            player=clean_wiki(line[:plain[0].start()]).strip(" ,;·")
+            player=re.sub(r"\{\{[^}]*\}\}","",player).strip()
+            if player:
+                for g in plain:
+                    marker=(g.group(2) or "").lower()
+                    gtype="pen" if "pen" in marker else ("og" if "o.g" in marker or marker=="og" else "")
+                    goals.append({"team":team,"player":player,"minute":g.group(1),"type":gtype})
+            continue
         first=None; events=[]
         for t in re.finditer(r"\{\{([^{}]*)\}\}", line):
             parts=[p.strip() for p in t.group(1).split("|")]
@@ -170,7 +180,9 @@ def collect_matches():
         # phase à élimination : déduire le tour d'après la date
         for m in ko:
             d=m["date"]
-            if d>= "2026-07-14": m["stage"]="F" if d>="2026-07-18" else "SF"
+            if d>="2026-07-19": m["stage"]="F"
+            elif d=="2026-07-18": m["stage"]="TP"
+            elif d>="2026-07-14": m["stage"]="SF"
             elif d>="2026-07-09": m["stage"]="QF"
             elif d>="2026-07-03": m["stage"]="R16"
             else: m["stage"]="R32"
@@ -199,7 +211,7 @@ ALIASES={"FRA":["france","bleus"],"ENG":["angleterre"],"GER":["allemagne"],"NED"
 "KOR":["coree du sud","coreens"],"NZL":["nouvelle-zelande"],"RSA":["afrique du sud"],"COD":["rd congo","congo"],
 "CPV":["cap-vert"],"UZB":["ouzbekistan"]}
 def team_tokens(code):
-    name=TEAMS[code][0]
+    name=TEAMS.get(code,(code,""))[0]
     toks=[norm(name)]
     toks+=ALIASES.get(code,[])
     return toks
